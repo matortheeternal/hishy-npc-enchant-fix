@@ -34,7 +34,8 @@ registerPatcher({
                 return {
                     signature: 'NPC_',
                     filter: function(record) {
-                        return !xelib.GetFlag(record, 'ACBS\\Template Flags', 'Use Spell List');
+                        return xelib.HasElement(record, 'ACBS\\Template Flags') &&
+                          !xelib.GetFlag(record, 'ACBS\\Template Flags', 'Use Spell List');
                     }
                 }
             },
