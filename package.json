@@ -1,11 +1,11 @@
 {
-  "name": "zedit-example-patcher",
-  "productName": "Mator's Example Patcher",
-  "description": "An example of a patcher built with zedit-unified-patching-framework.",
-  "version": "1.1",
-  "author": "Mator",
-  "copyright": "© 2017, Mator",
-  "repository": "https://github.com/matortheeternal/zedit-example-patcher",
+  "name": "hishy-npc-enchant-fix",
+  "productName": "UPF NPC Enchant Fix Patcher",
+  "description": "A simple port of ASIS' NPC Enchant Fix.",
+  "version": "1.1.0",
+  "author": "Hishutup",
+  "copyright": "© 2017, Hishutup",
+  "repository": "https://github.com/hishutup/hishy-npc-enchant-fix",
   "license": "MIT",
   "scripts": {
     "build": "gulp build"
