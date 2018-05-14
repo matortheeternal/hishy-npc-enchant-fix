@@ -1,55 +1,43 @@
 /* global ngapp, xelib */
-let modulePath = '../modules/matorsExamplePatcher';
+let doesntUseSpellList = function(record) {
+    return !xelib.GetFlag(record, 'ACBS\\Template Flags', 'Use Spell List');
+};
+
+let HasPerk = function(record, perk) {
+    return xelib.HasArrayItem(record, 'Perks', 'Perk', perk);
+};
+
+let AddPerk = function(record, perk, rank) {
+    let newPerk = xelib.AddArrayItem(record, 'Perks', 'Perk', perk);
+    xelib.SetValue(newPerk, 'Rank', rank);
+};
 
 registerPatcher({
     info: info,
     gameModes: [xelib.gmTES5, xelib.gmSSE],
     settings: {
-        label: 'Example Patcher',
-        templateUrl: `${modulePath}/partials/settings.html`,
-        defaultSettings: {
-            exampleSetting: 'hello world',
-            patchFileName: 'examplePatch.esp'
-        }
-    },
-    requiredFiles: [],
-    getFilesToPatch: function(filenames) {
-        return filenames;
+        label: 'NPC Enchant Fix'
     },
     execute: {
-        initialize: function(patch, helpers, settings, locals) {
-            // Perform anything that needs to be done once at the beginning of the
-            // patcher's execution here.  This can be used to cache records which don't
-            // need to be patched, but need to be referred to later on.  Store values
-            // on the locals variable to refer to them later in the patching process.
-            helpers.logMessage(settings.exampleSetting);
-            locals.weapons = helpers.loadRecords('WEAP');
+        initialize: function(plugin, helpers, settings, locals) {
+            locals.perks = {
+                'AlchemySkillBoosts': '000A725C',
+                'PerkSkillBoosts': '000CF788'
+            };
         },
         process: [{
-            load: function(plugin, helpers, settings, locals) {
-                // return a falsy value to skip loading/patching any records from a plugin
-                // return an object specifying the signature to load, and a filter
-                // function which returns true if a record should be patched.
-                if (xelib.Name(plugin) === 'Skyrim.esm') return;
-                return {
-                    signature: 'ARMO',
-                    filter: function(record) {
-                        return parseFloat(xelib.GetValue(record, 'DNAM')) > 20;
-                    }
-                }
-            },
+            load: () => ({
+                signature: 'NPC_',
+                filter: doesntUseSpellList
+            }),
             patch: function(record, helpers, settings, locals) {
-                // change values on the record as required
-                // you can also remove the record here, but it is discouraged.
-                // (try to use filters instead.)
                 helpers.logMessage(`Patching ${xelib.LongName(record)}`);
-                xelib.SetValue(record, 'DNAM', '30');
+                Object.keys(locals.perks).forEach(key => {
+                    let fid = locals.perks[key];
+                    if (HasPerk(record, fid)) return;
+                    AddPerk(record, fid, '1');
+                });
             }
-        }],
-        finalize: function(patch, helpers, settings, locals) {
-            // perform any cleanup here
-            // note that the framework automatically removes unused masters as
-            // well as ITPO and ITM records, so you don't need to do that
-        }
+        }]
     }
 });

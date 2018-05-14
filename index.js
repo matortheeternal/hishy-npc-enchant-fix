@@ -1,54 +1,41 @@
 /* global ngapp, xelib */
+let doesntUseSpellList = function(record) {
+    return !xelib.GetFlag(record, 'ACBS\\Template Flags', 'Use Spell List');
+};
+
+let HasPerk = function(record, perk) {
+    return xelib.HasArrayItem(record, 'Perks', 'Perk', perk);
+};
+
+let AddPerk = function(record, perk, rank) {
+    let newPerk = xelib.AddArrayItem(record, 'Perks', 'Perk', perk);
+    xelib.SetValue(newPerk, 'Rank', rank);
+};
+
 registerPatcher({
     info: info,
     gameModes: [xelib.gmTES5, xelib.gmSSE],
     settings: {
         label: 'NPC Enchant Fix'
     },
-    requiredFiles: [],
-    getFilesToPatch: function(filenames) {
-        return filenames;
-    },
     execute: {
-        initialize: function(patch, helpers, settings, locals) {
-            locals.perkData = [{
-                Name:'AlchemySkillBoosts',
-                Rank: '1',
-                FormID:''
-            },{
-                Name:'PerkSkillBoosts',
-                Rank: '1',
-                FormID:''
-            }];
-
-            helpers.loadRecords('PERK', false).forEach(function(perk) {
-                locals.perkData.forEach(function(key) {
-                    if (key.Name == xelib.EditorID(perk)) {
-                        key.FormID = xelib.GetHexFormID(perk, false, false);
-                    }
-                });
-            });
+        initialize: function(plugin, helpers, settings, locals) {
+            locals.perks = {
+                'AlchemySkillBoosts': '000A725C',
+                'PerkSkillBoosts': '000CF788'
+            };
         },
         process: [{
-            load: function(plugin, helpers, settings, locals) {
-                return {
-                    signature: 'NPC_',
-                    filter: function(record) {
-                        return !xelib.GetFlag(record, 'ACBS\\Template Flags', 'Use Spell List');
-                    }
-                }
-            },
+            load: () => ({
+                signature: 'NPC_',
+                filter: doesntUseSpellList
+            }),
             patch: function(record, helpers, settings, locals) {
-                if (!xelib.HasElement(record, 'Perks')) {
-                    xelib.AddElement(record, 'Perks');
-                    xelib.RemoveElement(record, 'Perks\\[0]');
-                }
-
-                locals.perkData.forEach(function(key) {
-                    if (!xelib.HasArrayItem(record, 'Perks', 'Perk', key.Name)) {
-                        let rec = xelib.AddArrayItem(record, 'Perks', 'Perk', key.FormID);
-                        xelib.SetValue(rec, 'Rank', key.Rank);
-                    }
+                helpers.logMessage(`Patching ${xelib.LongName(record)}`);
+                Object.keys(locals.perks).forEach(key => {
+                    let fid = locals.perks[key];
+                    if (HasPerk(record, fid)) return;
+                    AddPerk(record, fid, '1');
                 });
             }
         }]
