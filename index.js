@@ -1,6 +1,6 @@
 /* global ngapp, xelib */
 let doesntUseSpellList = function(record) {
-    if (!xelib.HasElement(record, 'ACBS\\Template Flags') return;
+    if (!xelib.HasElement(record, 'ACBS\\Template Flags')) return;
     return !xelib.GetFlag(record, 'ACBS\\Template Flags', 'Use Spell List');
 };
 
