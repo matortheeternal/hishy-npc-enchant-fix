@@ -1,3 +1,5 @@
+# hishy-npc-enchant-fix
+
 A simple port of ASIS' NPC Enchant Fix.
 
-- [Nexus Mods Page](https://www.nexusmods.com/skyrimspecialedition/mods/13543)
+- [Nexus Mods Mod Page](https://www.nexusmods.com/skyrimspecialedition/mods/13543)
